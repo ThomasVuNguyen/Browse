@@ -23,6 +23,15 @@ export function TabBar({
 }: TabBarProps) {
     return (
         <div className="flex bg-gray-900 pt-2 px-2 draggable select-none">
+            {/* App Icon */}
+            <div className="flex items-center px-2 mr-1">
+                <img
+                    src="/icon.svg"
+                    alt="Browse"
+                    className="w-5 h-5"
+                />
+            </div>
+
             {/* Tabs Scroll Area */}
             <div className="flex flex-1 items-center gap-1 overflow-x-auto no-scrollbar mask-gradient-right">
                 {tabs.map((tab) => (
