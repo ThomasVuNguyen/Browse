@@ -10,6 +10,9 @@ electron_1.contextBridge.exposeInMainWorld('electron', {
     onSystemStats: (callback) => {
         electron_1.ipcRenderer.on('system-stats', (_, value) => callback(value));
     },
+    security: {
+        setIgnoreCertificateErrors: (enabled) => electron_1.ipcRenderer.invoke('security:set-ignore-certificate-errors', enabled),
+    },
     // Extension APIs
     extensions: {
         load: (path) => electron_1.ipcRenderer.invoke('extension:load', path),

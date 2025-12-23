@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TabBar, NavigationBar, BrowserView, SettingsDialog, Toast } from './components';
-import { useTabs, useSystemStats, useCustomScripts, useExtensions } from './hooks';
+import { useTabs, useSystemStats, useCustomScripts, useExtensions, useSecuritySettings } from './hooks';
 
 function App() {
   const stats = useSystemStats();
@@ -37,6 +37,8 @@ function App() {
     unloadExtension,
     openPopup,
   } = useExtensions();
+
+  const { ignoreCertErrors, setIgnoreCertErrors } = useSecuritySettings();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; isVisible: boolean }>({ message: '', isVisible: false });
@@ -101,6 +103,8 @@ function App() {
         onLoadExtension={loadExtension}
         onInstallFromWebStore={installFromWebStore}
         onUnloadExtension={unloadExtension}
+        ignoreCertErrors={ignoreCertErrors}
+        onToggleIgnoreCertErrors={() => setIgnoreCertErrors(!ignoreCertErrors)}
       />
     </div>
   );

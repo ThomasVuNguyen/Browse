@@ -41,6 +41,10 @@ declare global {
                 installFromWebStore: (urlOrId: string) => Promise<ExtensionResult>;
             };
 
+            security: {
+                setIgnoreCertificateErrors: (enabled: boolean) => Promise<{ success: boolean }>;
+            };
+
             // Extension events
             onExtensionCreateTab: (callback: (url: string) => void) => void;
         };

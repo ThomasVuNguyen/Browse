@@ -30,6 +30,12 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.on('system-stats', (_, value) => callback(value));
     },
 
+    security: {
+        setIgnoreCertificateErrors: (enabled: boolean): Promise<{ success: boolean }> =>
+            ipcRenderer.invoke('security:set-ignore-certificate-errors', enabled),
+    },
+
+
     // Extension APIs
     extensions: {
         load: (path: string): Promise<ExtensionResult> =>

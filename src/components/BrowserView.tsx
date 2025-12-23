@@ -9,22 +9,32 @@ interface BrowserViewProps {
     customScripts: CustomScript[];
 }
 
-export function BrowserView({ tabs, activeTabId, onWebviewRef, customScripts }: BrowserViewProps) {
+export function BrowserView({
+    tabs,
+    activeTabId,
+    onWebviewRef,
+    customScripts,
+}: BrowserViewProps) {
     const webviewRefs = useRef<Record<string, WebviewElement | null>>({});
     // Track injected CSS keys: tabId -> scriptId -> key
     const cssKeysRef = useRef<Record<string, Record<string, string>>>({});
 
     const handleWebviewRefLocal = (id: string, el: WebviewElement | null) => {
+        if (!el) {
+            delete webviewRefs.current[id];
+            delete cssKeysRef.current[id];
+            onWebviewRef(id, null);
+            return;
+        }
+
         webviewRefs.current[id] = el;
         onWebviewRef(id, el);
 
-        if (el) {
-            el.addEventListener('dom-ready', () => {
-                // Page reloaded, previous CSS is gone. Reset keys for this tab.
-                cssKeysRef.current[id] = {};
-                injectScripts(id, el, customScripts);
-            });
-        }
+        el.addEventListener('dom-ready', () => {
+            // Page reloaded, previous CSS is gone. Reset keys for this tab.
+            cssKeysRef.current[id] = {};
+            injectScripts(id, el, customScripts);
+        });
     };
 
     const injectScripts = async (tabId: string, webview: WebviewElement, scripts: CustomScript[]) => {

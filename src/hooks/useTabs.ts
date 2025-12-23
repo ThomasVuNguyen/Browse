@@ -98,21 +98,22 @@ export function useTabs(): UseTabsReturn {
     }, [activeTabId]);
 
     const handleWebviewRef = useCallback((id: string, el: WebviewElement | null) => {
-        if (el && !webviewRefs.current[id]) {
-            webviewRefs.current[id] = el;
-
-            el.addEventListener('did-finish-load', () => {
-                const title = el.getTitle();
-                const url = el.getURL();
-                setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, title, url } : t)));
-                setActiveTabId((currentId) => {
-                    if (currentId === id) {
-                        setUrlInput(url);
-                    }
-                    return currentId;
-                });
-            });
+        webviewRefs.current[id] = el;
+        if (!el) {
+            return;
         }
+
+        el.addEventListener('did-finish-load', () => {
+            const title = el.getTitle();
+            const url = el.getURL();
+            setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, title, url } : t)));
+            setActiveTabId((currentId) => {
+                if (currentId === id) {
+                    setUrlInput(url);
+                }
+                return currentId;
+            });
+        });
     }, []);
 
     const reloadIgnoringCache = useCallback(() => {

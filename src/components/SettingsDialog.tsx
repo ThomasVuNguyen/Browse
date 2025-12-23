@@ -3,7 +3,7 @@ import type { CustomScript, LoadedExtension } from '../types';
 import { useState } from 'react';
 import { ExtensionManager } from './ExtensionManager';
 
-type SettingsTab = 'scripts' | 'extensions';
+type SettingsTab = 'scripts' | 'extensions' | 'security';
 
 interface SettingsDialogProps {
     isOpen: boolean;
@@ -20,6 +20,9 @@ interface SettingsDialogProps {
     onLoadExtension: () => Promise<void>;
     onInstallFromWebStore: (urlOrId: string) => Promise<boolean>;
     onUnloadExtension: (id: string) => Promise<void>;
+    // Security props
+    ignoreCertErrors: boolean;
+    onToggleIgnoreCertErrors: () => void;
 }
 
 export function SettingsDialog({
@@ -36,6 +39,8 @@ export function SettingsDialog({
     onLoadExtension,
     onInstallFromWebStore,
     onUnloadExtension,
+    ignoreCertErrors,
+    onToggleIgnoreCertErrors,
 }: SettingsDialogProps) {
     const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<SettingsTab>('scripts');
@@ -77,6 +82,16 @@ export function SettingsDialog({
                                     {extensions.length}
                                 </span>
                             )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('security')}
+                            className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors mt-1 ${activeTab === 'security'
+                                ? 'bg-gray-700 text-white'
+                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                                }`}
+                        >
+                            <FileText size={18} />
+                            <span>Security</span>
                         </button>
                     </div>
                     <div className="p-4 border-t border-gray-700">
@@ -196,7 +211,7 @@ export function SettingsDialog({
                             )}
                         </div>
                     </>
-                ) : (
+                ) : activeTab === 'extensions' ? (
                     /* Extensions Tab */
                     <div className="flex-1">
                         <ExtensionManager
@@ -207,6 +222,32 @@ export function SettingsDialog({
                             onInstallFromWebStore={onInstallFromWebStore}
                             onUnloadExtension={onUnloadExtension}
                         />
+                    </div>
+                ) : (
+                    <div className="flex-1 p-6 bg-gray-900 text-gray-200">
+                        <h3 className="text-lg font-semibold mb-4">Security</h3>
+                        <div className="flex items-center justify-between bg-gray-800/60 border border-gray-700 rounded-lg p-4">
+                            <div>
+                                <div className="font-medium">Ignore certificate errors</div>
+                                <div className="text-sm text-gray-400 mt-1">
+                                    Allows sites with invalid or untrusted TLS certificates. This is unsafe.
+                                </div>
+                            </div>
+                            <label className="inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={ignoreCertErrors}
+                                    onChange={onToggleIgnoreCertErrors}
+                                />
+                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-red-600 relative transition-colors">
+                                    <div className="absolute top-0.5 left-0.5 h-5 w-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                                </div>
+                            </label>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-3">
+                            Use only for development or trusted networks.
+                        </p>
                     </div>
                 )}
             </div>

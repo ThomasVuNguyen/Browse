@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, session } from 'electron';
 import path from 'path';
 import {
     initExtensionManager,
@@ -57,6 +57,23 @@ function createWindow() {
         }
     });
     ipcMain.on('window-close', () => mainWindow?.close());
+
+    ipcMain.handle('security:set-ignore-certificate-errors', (_event, enabled: boolean) => {
+        try {
+            const defaultSession = session.defaultSession;
+            const mainSession = session.fromPartition('persist:main');
+            const handler = (_request: unknown, callback: (result: number) => void) => {
+                callback(enabled ? 0 : -3);
+            };
+
+            defaultSession.setCertificateVerifyProc(handler);
+            mainSession.setCertificateVerifyProc(handler);
+            return { success: true };
+        } catch {
+            return { success: false };
+        }
+    });
+
 
     // Extension IPC handlers
     ipcMain.handle('extension:load', async (_event, extensionPath: string) => {

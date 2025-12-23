@@ -47,6 +47,21 @@ function createWindow() {
         }
     });
     electron_1.ipcMain.on('window-close', () => mainWindow?.close());
+    electron_1.ipcMain.handle('security:set-ignore-certificate-errors', (_event, enabled) => {
+        try {
+            const defaultSession = electron_1.session.defaultSession;
+            const mainSession = electron_1.session.fromPartition('persist:main');
+            const handler = (_request, callback) => {
+                callback(enabled ? 0 : -3);
+            };
+            defaultSession.setCertificateVerifyProc(handler);
+            mainSession.setCertificateVerifyProc(handler);
+            return { success: true };
+        }
+        catch {
+            return { success: false };
+        }
+    });
     // Extension IPC handlers
     electron_1.ipcMain.handle('extension:load', async (_event, extensionPath) => {
         try {
