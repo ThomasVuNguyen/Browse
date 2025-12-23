@@ -19,6 +19,7 @@ export interface WebviewElement {
     goBack: () => void;
     goForward: () => void;
     reload: () => void;
+    reloadIgnoringCache: () => void;
     getTitle: () => string;
     getURL: () => string;
     addEventListener: (event: string, callback: () => void) => void;

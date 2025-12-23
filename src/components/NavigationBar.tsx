@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings, Eraser } from 'lucide-react';
 import type { LoadedExtension } from '../types';
 import { ExtensionButton } from './ExtensionButton';
 
@@ -11,6 +11,7 @@ interface NavigationBarProps {
     onForward: () => void;
     onReload: () => void;
     onSettingsClick: () => void;
+    onClearCache: () => void;
     extensions?: LoadedExtension[];
     onOpenExtensionPopup?: (id: string) => void;
 }
@@ -23,6 +24,7 @@ export function NavigationBar({
     onForward,
     onReload,
     onSettingsClick,
+    onClearCache,
     extensions = [],
     onOpenExtensionPopup,
 }: NavigationBarProps) {
@@ -81,6 +83,14 @@ export function NavigationBar({
                     ))}
                 </div>
             )}
+
+            <button
+                onClick={onClearCache}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-full transition-colors active:scale-95"
+                title="Hard Reload (Clear Cache)"
+            >
+                <Eraser size={18} />
+            </button>
 
             <button
                 onClick={onSettingsClick}

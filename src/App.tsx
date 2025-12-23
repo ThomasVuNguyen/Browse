@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TabBar, NavigationBar, BrowserView, SettingsDialog } from './components';
+import { TabBar, NavigationBar, BrowserView, SettingsDialog, Toast } from './components';
 import { useTabs, useSystemStats, useCustomScripts, useExtensions } from './hooks';
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
     goBack,
     goForward,
     reload,
+    reloadIgnoringCache,
     handleWebviewRef,
   } = useTabs();
 
@@ -38,6 +39,16 @@ function App() {
   } = useExtensions();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; isVisible: boolean }>({ message: '', isVisible: false });
+
+  const showToast = (message: string) => {
+    setToast({ message, isVisible: true });
+  };
+
+  const handleClearCache = () => {
+    reloadIgnoringCache();
+    showToast('Cache cleared for this page');
+  };
 
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
@@ -57,6 +68,7 @@ function App() {
         onBack={goBack}
         onForward={goForward}
         onReload={reload}
+        onClearCache={handleClearCache}
         onSettingsClick={() => setIsSettingsOpen(true)}
         extensions={extensions}
         onOpenExtensionPopup={openPopup}
@@ -67,6 +79,12 @@ function App() {
         activeTabId={activeTabId}
         onWebviewRef={handleWebviewRef}
         customScripts={scripts}
+      />
+
+      <Toast
+        message={toast.message}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
       />
 
       <SettingsDialog

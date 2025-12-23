@@ -17,6 +17,7 @@ interface UseTabsReturn {
     goForward: () => void;
     reload: () => void;
     handleWebviewRef: (id: string, el: WebviewElement | null) => void;
+    reloadIgnoringCache: () => void;
 }
 
 /**
@@ -114,6 +115,11 @@ export function useTabs(): UseTabsReturn {
         }
     }, []);
 
+    const reloadIgnoringCache = useCallback(() => {
+        const wb = webviewRefs.current[activeTabId];
+        if (wb) wb.reloadIgnoringCache();
+    }, [activeTabId]);
+
     return {
         tabs,
         activeTabId,
@@ -128,6 +134,7 @@ export function useTabs(): UseTabsReturn {
         goBack,
         goForward,
         reload,
+        reloadIgnoringCache,
         handleWebviewRef,
     };
 }
