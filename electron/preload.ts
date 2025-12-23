@@ -1,5 +1,7 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
-    // APIs for the renderer provided here
+    min: () => ipcRenderer.send('window-min'),
+    max: () => ipcRenderer.send('window-max'),
+    close: () => ipcRenderer.send('window-close'),
 });

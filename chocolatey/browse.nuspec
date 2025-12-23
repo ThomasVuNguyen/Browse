@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>browse</id>
+    <version>0.0.0</version>
+    <title>Browse</title>
+    <authors>Your Name</authors>
+    <projectUrl>https://github.com/your-username/browse</projectUrl>
+    <tags>browse electron browser</tags>
+    <summary>A minimal web browser built with Electron.</summary>
+    <description>A minimal web browser built with Electron, React, and TypeScript.</description>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

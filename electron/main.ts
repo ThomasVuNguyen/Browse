@@ -13,6 +13,8 @@ function createWindow() {
             contextIsolation: true,
             webviewTag: true
         },
+        autoHideMenuBar: true,
+        frame: false,
     });
 
     const startUrl = process.env.NODE_ENV === 'development'
@@ -28,6 +30,18 @@ function createWindow() {
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
+
+    // Window controls IPC
+    const { ipcMain } = require('electron');
+    ipcMain.on('window-min', () => mainWindow?.minimize());
+    ipcMain.on('window-max', () => {
+        if (mainWindow?.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow?.maximize();
+        }
+    });
+    ipcMain.on('window-close', () => mainWindow?.close());
 }
 
 app.whenReady().then(createWindow);

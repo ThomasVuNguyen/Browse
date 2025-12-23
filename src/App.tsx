@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
-import { Plus, X, ArrowLeft, ArrowRight, RotateCcw, Search, Home } from 'lucide-react'
+import { Plus, X, ArrowLeft, ArrowRight, RotateCcw, Search, Home, Minus, Square } from 'lucide-react'
 
 interface Tab {
   id: string
@@ -102,32 +102,44 @@ function App() {
 
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
-      {/* Tab Bar */}
-      <div className="flex items-center bg-gray-900 pt-2 px-2 gap-1 overflow-x-auto draggable">
-        {tabs.map(tab => (
-          <div
-            key={tab.id}
-            onClick={() => setActiveTabId(tab.id)}
-            className={`
-              group relative flex items-center min-w-[160px] max-w-[240px] h-9 px-3 rounded-t-lg cursor-pointer text-sm select-none transition-colors
-              ${activeTabId === tab.id ? 'bg-gray-800 text-gray-100' : 'bg-gray-900 text-gray-400 hover:bg-gray-800/50'}
-            `}
-          >
-            <div className="truncate flex-1 mr-2">{tab.title}</div>
-            <button
-              onClick={(e) => closeTab(e, tab.id)}
-              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded-full transition-all"
+      {/* Tab Bar Container */}
+      <div className="flex bg-gray-900 pt-2 px-2 draggable select-none">
+
+        {/* Tabs Scroll Area */}
+        <div className="flex flex-1 items-center gap-1 overflow-x-auto no-scrollbar mask-gradient-right">
+          {tabs.map(tab => (
+            <div
+              key={tab.id}
+              onClick={() => setActiveTabId(tab.id)}
+              className={`
+                group relative flex items-center min-w-[120px] max-w-[200px] h-9 px-3 rounded-t-lg cursor-pointer text-sm transition-colors
+                ${activeTabId === tab.id ? 'bg-gray-800 text-gray-100' : 'bg-gray-900 text-gray-400 hover:bg-gray-800/50'}
+                `}
             >
-              <X size={12} />
-            </button>
-          </div>
-        ))}
-        <button
-          onClick={createTab}
-          className="p-1.5 ml-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors"
-        >
-          <Plus size={16} />
-        </button>
+              <div className="truncate flex-1 mr-2">{tab.title}</div>
+              <button
+                onClick={(e) => closeTab(e, tab.id)}
+                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded-full transition-all"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={createTab}
+            className="p-1.5 ml-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors flex-shrink-0"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+
+        {/* Window Controls */}
+        <div className="flex items-center gap-1 pl-2 mb-1">
+          <button onClick={() => window.electron.min()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Minus size={14} /></button>
+          <button onClick={() => window.electron.max()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Square size={12} /></button>
+          <button onClick={() => window.electron.close()} className="p-1.5 hover:bg-red-500 rounded text-gray-400 hover:text-white"><X size={14} /></button>
+        </div>
+
       </div>
 
       {/* Navigation Bar */}
