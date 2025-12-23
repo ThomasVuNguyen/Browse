@@ -78,10 +78,12 @@ jobs:
       - name: Convert icon for Linux
         if: runner.os == 'Linux'
         run: |
-          magick convert public/icon.svg -resize 512x512 public/icon.png
+          convert public/icon.svg -resize 512x512 public/icon.png
       
       # Build the application
       - name: Build Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run electron:build
       
       # Upload artifacts
