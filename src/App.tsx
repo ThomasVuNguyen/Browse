@@ -1,5 +1,6 @@
-import { TabBar, NavigationBar, BrowserView } from './components';
-import { useTabs, useSystemStats } from './hooks';
+import { useState } from 'react';
+import { TabBar, NavigationBar, BrowserView, SettingsDialog } from './components';
+import { useTabs, useSystemStats, useCustomScripts } from './hooks';
 
 function App() {
   const stats = useSystemStats();
@@ -17,6 +18,16 @@ function App() {
     reload,
     handleWebviewRef,
   } = useTabs();
+
+  const {
+    scripts,
+    addScript,
+    updateScript,
+    deleteScript,
+    toggleScript
+  } = useCustomScripts();
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
@@ -36,12 +47,24 @@ function App() {
         onBack={goBack}
         onForward={goForward}
         onReload={reload}
+        onSettingsClick={() => setIsSettingsOpen(true)}
       />
 
       <BrowserView
         tabs={tabs}
         activeTabId={activeTabId}
         onWebviewRef={handleWebviewRef}
+        customScripts={scripts}
+      />
+
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        scripts={scripts}
+        onAddScript={addScript}
+        onUpdateScript={updateScript}
+        onDeleteScript={deleteScript}
+        onToggleScript={toggleScript}
       />
     </div>
   );

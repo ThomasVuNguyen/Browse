@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import { ArrowLeft, ArrowRight, RotateCcw, Search } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings } from 'lucide-react';
 
 interface NavigationBarProps {
     urlInput: string;
@@ -8,6 +8,7 @@ interface NavigationBarProps {
     onBack: () => void;
     onForward: () => void;
     onReload: () => void;
+    onSettingsClick: () => void;
 }
 
 export function NavigationBar({
@@ -17,6 +18,7 @@ export function NavigationBar({
     onBack,
     onForward,
     onReload,
+    onSettingsClick,
 }: NavigationBarProps) {
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') onNavigate();
@@ -60,6 +62,14 @@ export function NavigationBar({
                     className="flex-1 bg-transparent border-none outline-none text-sm text-gray-200 placeholder-gray-500 w-full"
                 />
             </div>
+
+            <button
+                onClick={onSettingsClick}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-full transition-colors active:scale-95"
+                title="Settings"
+            >
+                <Settings size={18} />
+            </button>
         </div>
     );
 }

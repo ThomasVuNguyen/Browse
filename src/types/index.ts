@@ -22,4 +22,15 @@ export interface WebviewElement extends HTMLElement {
     getTitle: () => string;
     getURL: () => string;
     addEventListener: (event: string, callback: () => void) => void;
+    insertCSS: (css: string) => Promise<string>;
+    removeInsertedCSS: (key: string) => Promise<void>;
+    executeJavaScript: (code: string) => Promise<unknown>;
+}
+
+export interface CustomScript {
+    id: string;
+    name: string;
+    type: 'js' | 'css';
+    content: string;
+    enabled: boolean;
 }
