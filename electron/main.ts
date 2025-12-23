@@ -49,36 +49,23 @@ function createWindow() {
     let cpuAvg = 0;
     let prevCpus = os.cpus();
 
-    setInterval(() => {
+    setInterval(async () => {
         if (!mainWindow) return;
 
-        const cpus = os.cpus();
-        let idle = 0;
-        let total = 0;
+        const metrics = app.getAppMetrics();
+        // sum up memory and cpu from all processes
+        // memory.workingSetSize is in KB
+        const totalMemKB = metrics.reduce((acc, m) => acc + m.memory.workingSetSize, 0);
+        const memMB = Math.round(totalMemKB / 1024);
 
-        for (let i = 0; i < cpus.length; i++) {
-            const cpu = cpus[i];
-            const prevCpu = prevCpus[i];
-
-            for (const type in cpu.times) {
-                total += cpu.times[type] - prevCpu.times[type];
-            }
-            idle += cpu.times.idle - prevCpu.times.idle;
-        }
-
-        prevCpus = cpus;
-        const usage = 1 - idle / total;
-        const cpuPercent = Math.round(usage * 100);
-
-        const totalMem = os.totalmem();
-        const freeMem = os.freemem();
-        const usedMem = totalMem - freeMem;
-        const memPercent = Math.round((usedMem / totalMem) * 100);
+        // percentCPUUsage is a percentage (e.g. 100 = 1 core)
+        const totalCpu = metrics.reduce((acc, m) => acc + m.cpu.percentCPUUsage, 0);
+        const cpuPercent = Math.round(totalCpu); // can be > 100 for multi-core
 
         mainWindow.webContents.send('system-stats', {
             cpu: cpuPercent,
-            mem: memPercent,
-            totalMemGb: (totalMem / 1024 / 1024 / 1024).toFixed(1)
+            mem: memMB,
+            totalMemGb: '0' // Unused now or can be removed in frontend
         });
     }, 1000);
 }
