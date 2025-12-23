@@ -1,5 +1,6 @@
 {
-  "name": "browse",
+  "name": "kava",
+  "productName": "kava",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -46,7 +47,7 @@
     "wait-on": "^9.0.3"
   },
   "build": {
-    "appId": "com.browse.app",
+    "appId": "com.kava.app",
     "directories": {
       "output": "release"
     },
