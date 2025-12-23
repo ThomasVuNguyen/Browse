@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "compile:electron": "tsc -p tsconfig.electron.json && copy electron\\package.json dist-electron\\package.json",
+    "compile:electron": "tsc -p tsconfig.electron.json && node -e \"require('fs').copyFileSync('electron/package.json', 'dist-electron/package.json')\"",
     "electron": "npm run compile:electron && wait-on tcp:5173 && cross-env NODE_ENV=development electron .",
     "electron:dev": "concurrently -k \"npm run dev\" \"npm run electron\"",
     "electron:build": "npm run compile:electron && vite build && electron-builder"
