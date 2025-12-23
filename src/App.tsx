@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, KeyboardEvent } from 'react'
-import { Plus, X, ArrowLeft, ArrowRight, RotateCcw, Search, Home, Minus, Square } from 'lucide-react'
+import { useState, useRef, useEffect, type KeyboardEvent } from 'react'
+import { Plus, X, ArrowLeft, ArrowRight, RotateCcw, Search, Home, Minus, Square, Cpu, MemoryStick } from 'lucide-react'
 
 interface Tab {
   id: string
@@ -13,9 +13,17 @@ function App() {
   ])
   const [activeTabId, setActiveTabId] = useState('1')
   const [urlInput, setUrlInput] = useState('https://www.google.com')
+  const [stats, setStats] = useState({ cpu: 0, mem: 0, totalMemGb: '0' })
   const webviewRefs = useRef<{ [key: string]: any }>({})
 
   const activeTab = tabs.find(t => t.id === activeTabId)
+
+  // System stats listener
+  useEffect(() => {
+    if (window.electron?.onSystemStats) {
+      window.electron.onSystemStats((newStats) => setStats(newStats))
+    }
+  }, [])
 
   // Update input when switching tabs
   useEffect(() => {
@@ -23,6 +31,7 @@ function App() {
       setUrlInput(activeTab.url)
     }
   }, [activeTabId, tabs])
+
 
   const createTab = () => {
     const newId = Date.now().toString()
@@ -112,7 +121,7 @@ function App() {
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
               className={`
-                group relative flex items-center min-w-[120px] max-w-[200px] h-9 px-3 rounded-t-lg cursor-pointer text-sm transition-colors
+                group relative flex items-center min-w-[120px] max-w-[200px] h-9 px-3 rounded-t-lg cursor-pointer text-sm transition-colors no-drag
                 ${activeTabId === tab.id ? 'bg-gray-800 text-gray-100' : 'bg-gray-900 text-gray-400 hover:bg-gray-800/50'}
                 `}
             >
@@ -134,10 +143,23 @@ function App() {
         </div>
 
         {/* Window Controls */}
-        <div className="flex items-center gap-1 pl-2 mb-1">
-          <button onClick={() => window.electron.min()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Minus size={14} /></button>
-          <button onClick={() => window.electron.max()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Square size={12} /></button>
-          <button onClick={() => window.electron.close()} className="p-1.5 hover:bg-red-500 rounded text-gray-400 hover:text-white"><X size={14} /></button>
+        <div className="flex items-center gap-2 pl-2 mb-1 border-l border-gray-800 ml-2">
+          <div className="flex items-center gap-3 text-[10px] text-gray-500 font-mono select-none px-2">
+            <div className="flex items-center gap-1" title="CPU Usage">
+              <Cpu size={12} />
+              <span>{stats.cpu}%</span>
+            </div>
+            <div className="flex items-center gap-1" title="Memory Usage">
+              <MemoryStick size={12} />
+              <span>{stats.mem}%</span>
+              <span className="opacity-50">({stats.totalMemGb}GB)</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <button onClick={() => window.electron.min()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Minus size={14} /></button>
+            <button onClick={() => window.electron.max()} className="p-1.5 hover:bg-gray-800 rounded text-gray-400 hover:text-white"><Square size={12} /></button>
+            <button onClick={() => window.electron.close()} className="p-1.5 hover:bg-red-500 rounded text-gray-400 hover:text-white"><X size={14} /></button>
+          </div>
         </div>
 
       </div>
@@ -178,8 +200,11 @@ function App() {
             key={tab.id}
             ref={(el: any) => handleWebviewRef(tab.id, el)}
             src={tab.url}
-            className="w-full h-full"
-            style={{ display: activeTabId === tab.id ? 'flex' : 'none' }}
+            className="absolute top-0 w-full h-full bg-white"
+            style={{
+              left: activeTabId === tab.id ? '0' : '-9999px',
+              visibility: activeTabId === tab.id ? 'visible' : 'hidden'
+            }}
             allowpopups="true"
             partition="persist:main"
           />

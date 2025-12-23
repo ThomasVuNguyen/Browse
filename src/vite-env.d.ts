@@ -12,6 +12,7 @@ declare global {
             min: () => void;
             max: () => void;
             close: () => void;
+            onSystemStats: (callback: (stats: { cpu: number; mem: number; totalMemGb: string }) => void) => void;
         }
     }
 }

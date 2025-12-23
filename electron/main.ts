@@ -42,6 +42,45 @@ function createWindow() {
         }
     });
     ipcMain.on('window-close', () => mainWindow?.close());
+
+    // System Stats Interval
+    const os = require('os');
+
+    let cpuAvg = 0;
+    let prevCpus = os.cpus();
+
+    setInterval(() => {
+        if (!mainWindow) return;
+
+        const cpus = os.cpus();
+        let idle = 0;
+        let total = 0;
+
+        for (let i = 0; i < cpus.length; i++) {
+            const cpu = cpus[i];
+            const prevCpu = prevCpus[i];
+
+            for (const type in cpu.times) {
+                total += cpu.times[type] - prevCpu.times[type];
+            }
+            idle += cpu.times.idle - prevCpu.times.idle;
+        }
+
+        prevCpus = cpus;
+        const usage = 1 - idle / total;
+        const cpuPercent = Math.round(usage * 100);
+
+        const totalMem = os.totalmem();
+        const freeMem = os.freemem();
+        const usedMem = totalMem - freeMem;
+        const memPercent = Math.round((usedMem / totalMem) * 100);
+
+        mainWindow.webContents.send('system-stats', {
+            cpu: cpuPercent,
+            mem: memPercent,
+            totalMemGb: (totalMem / 1024 / 1024 / 1024).toFixed(1)
+        });
+    }, 1000);
 }
 
 app.whenReady().then(createWindow);
