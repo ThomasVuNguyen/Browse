@@ -30,9 +30,8 @@ function createWindow() {
         mainWindow = null;
     });
     // Window controls IPC
-    const { ipcMain } = require('electron');
-    ipcMain.on('window-min', () => mainWindow?.minimize());
-    ipcMain.on('window-max', () => {
+    electron_1.ipcMain.on('window-min', () => mainWindow?.minimize());
+    electron_1.ipcMain.on('window-max', () => {
         if (mainWindow?.isMaximized()) {
             mainWindow.unmaximize();
         }
@@ -40,36 +39,22 @@ function createWindow() {
             mainWindow?.maximize();
         }
     });
-    ipcMain.on('window-close', () => mainWindow?.close());
-    // System Stats Interval
-    const os = require('os');
-    let cpuAvg = 0;
-    let prevCpus = os.cpus();
+    electron_1.ipcMain.on('window-close', () => mainWindow?.close());
+    // App metrics interval - sends CPU & memory stats to renderer
     setInterval(() => {
         if (!mainWindow)
             return;
-        const cpus = os.cpus();
-        let idle = 0;
-        let total = 0;
-        for (let i = 0; i < cpus.length; i++) {
-            const cpu = cpus[i];
-            const prevCpu = prevCpus[i];
-            for (const type in cpu.times) {
-                total += cpu.times[type] - prevCpu.times[type];
-            }
-            idle += cpu.times.idle - prevCpu.times.idle;
-        }
-        prevCpus = cpus;
-        const usage = 1 - idle / total;
-        const cpuPercent = Math.round(usage * 100);
-        const totalMem = os.totalmem();
-        const freeMem = os.freemem();
-        const usedMem = totalMem - freeMem;
-        const memPercent = Math.round((usedMem / totalMem) * 100);
+        const metrics = electron_1.app.getAppMetrics();
+        // Sum up memory and CPU from all processes
+        // memory.workingSetSize is in KB
+        const totalMemKB = metrics.reduce((acc, m) => acc + m.memory.workingSetSize, 0);
+        const memMB = Math.round(totalMemKB / 1024);
+        // percentCPUUsage is a percentage (e.g. 100 = 1 core)
+        const totalCpu = metrics.reduce((acc, m) => acc + m.cpu.percentCPUUsage, 0);
+        const cpuPercent = Math.round(totalCpu);
         mainWindow.webContents.send('system-stats', {
             cpu: cpuPercent,
-            mem: memPercent,
-            totalMemGb: (totalMem / 1024 / 1024 / 1024).toFixed(1)
+            mem: memMB,
         });
     }, 1000);
 }
