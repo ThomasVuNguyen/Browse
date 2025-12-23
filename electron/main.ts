@@ -1,5 +1,14 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
+import {
+    initExtensionManager,
+    loadExtensionFromPath,
+    unloadExtension,
+    getLoadedExtensions,
+    openExtensionPopup,
+    getExtensionPopupUrl,
+    installFromWebStore,
+} from './extensionManager';
 
 let mainWindow: BrowserWindow | null;
 
@@ -32,6 +41,12 @@ function createWindow() {
         mainWindow = null;
     });
 
+    // Initialize extension manager
+    initExtensionManager(mainWindow, (url: string) => {
+        // Notify renderer to create a new tab with this URL
+        mainWindow?.webContents.send('extension-create-tab', url);
+    });
+
     // Window controls IPC
     ipcMain.on('window-min', () => mainWindow?.minimize());
     ipcMain.on('window-max', () => {
@@ -42,6 +57,66 @@ function createWindow() {
         }
     });
     ipcMain.on('window-close', () => mainWindow?.close());
+
+    // Extension IPC handlers
+    ipcMain.handle('extension:load', async (_event, extensionPath: string) => {
+        try {
+            const ext = await loadExtensionFromPath(extensionPath);
+            return { success: true, extension: ext };
+        } catch (e) {
+            return { success: false, error: (e as Error).message };
+        }
+    });
+
+    ipcMain.handle('extension:load-dialog', async () => {
+        const result = await dialog.showOpenDialog(mainWindow!, {
+            properties: ['openDirectory'],
+            title: 'Select Extension Folder',
+            buttonLabel: 'Load Extension',
+        });
+
+        if (result.canceled || result.filePaths.length === 0) {
+            return { success: false, error: 'No folder selected' };
+        }
+
+        try {
+            const ext = await loadExtensionFromPath(result.filePaths[0]);
+            return { success: true, extension: ext };
+        } catch (e) {
+            return { success: false, error: (e as Error).message };
+        }
+    });
+
+    ipcMain.handle('extension:unload', async (_event, extensionId: string) => {
+        try {
+            await unloadExtension(extensionId);
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: (e as Error).message };
+        }
+    });
+
+    ipcMain.handle('extension:list', () => {
+        return getLoadedExtensions();
+    });
+
+    ipcMain.handle('extension:open-popup', (_event, extensionId: string) => {
+        const popup = openExtensionPopup(extensionId);
+        return { success: popup !== null };
+    });
+
+    ipcMain.handle('extension:get-popup-url', (_event, extensionId: string) => {
+        return getExtensionPopupUrl(extensionId);
+    });
+
+    ipcMain.handle('extension:install-from-webstore', async (_event, urlOrId: string) => {
+        try {
+            const ext = await installFromWebStore(urlOrId);
+            return { success: true, extension: ext };
+        } catch (e) {
+            return { success: false, error: (e as Error).message };
+        }
+    });
 
     // App metrics interval - sends CPU & memory stats to renderer
     setInterval(() => {

@@ -1,5 +1,7 @@
 import type { KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings } from 'lucide-react';
+import type { LoadedExtension } from '../types';
+import { ExtensionButton } from './ExtensionButton';
 
 interface NavigationBarProps {
     urlInput: string;
@@ -9,6 +11,8 @@ interface NavigationBarProps {
     onForward: () => void;
     onReload: () => void;
     onSettingsClick: () => void;
+    extensions?: LoadedExtension[];
+    onOpenExtensionPopup?: (id: string) => void;
 }
 
 export function NavigationBar({
@@ -19,6 +23,8 @@ export function NavigationBar({
     onForward,
     onReload,
     onSettingsClick,
+    extensions = [],
+    onOpenExtensionPopup,
 }: NavigationBarProps) {
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') onNavigate();
@@ -62,6 +68,19 @@ export function NavigationBar({
                     className="flex-1 bg-transparent border-none outline-none text-sm text-gray-200 placeholder-gray-500 w-full"
                 />
             </div>
+
+            {/* Extension buttons */}
+            {extensions.length > 0 && onOpenExtensionPopup && (
+                <div className="flex items-center gap-1 border-l border-gray-700 pl-3">
+                    {extensions.map((ext) => (
+                        <ExtensionButton
+                            key={ext.id}
+                            extension={ext}
+                            onOpenPopup={onOpenExtensionPopup}
+                        />
+                    ))}
+                </div>
+            )}
 
             <button
                 onClick={onSettingsClick}

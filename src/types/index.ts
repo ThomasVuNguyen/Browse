@@ -12,7 +12,7 @@ export interface SystemStats {
 }
 
 /** Electron webview element with navigation methods */
-export interface WebviewElement extends HTMLElement {
+export interface WebviewElement {
     src: string;
     canGoBack: () => boolean;
     canGoForward: () => boolean;
@@ -34,3 +34,13 @@ export interface CustomScript {
     content: string;
     enabled: boolean;
 }
+
+/** Loaded Chrome extension info */
+export interface LoadedExtension {
+    id: string;
+    name: string;
+    version: string;
+    path: string;
+    enabled: boolean;
+}
+

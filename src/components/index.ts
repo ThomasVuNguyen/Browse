@@ -5,4 +5,7 @@ export { WindowControls } from './WindowControls';
 export { ResourceMonitor } from './ResourceMonitor';
 export { BrowserView } from './BrowserView';
 export { SettingsDialog } from './SettingsDialog';
+export { ExtensionButton } from './ExtensionButton';
+export { ExtensionManager } from './ExtensionManager';
+
 

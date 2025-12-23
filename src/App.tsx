@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TabBar, NavigationBar, BrowserView, SettingsDialog } from './components';
-import { useTabs, useSystemStats, useCustomScripts } from './hooks';
+import { useTabs, useSystemStats, useCustomScripts, useExtensions } from './hooks';
 
 function App() {
   const stats = useSystemStats();
@@ -27,6 +27,16 @@ function App() {
     toggleScript
   } = useCustomScripts();
 
+  const {
+    extensions,
+    isLoading: extensionsLoading,
+    error: extensionsError,
+    loadExtension,
+    installFromWebStore,
+    unloadExtension,
+    openPopup,
+  } = useExtensions();
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
@@ -48,6 +58,8 @@ function App() {
         onForward={goForward}
         onReload={reload}
         onSettingsClick={() => setIsSettingsOpen(true)}
+        extensions={extensions}
+        onOpenExtensionPopup={openPopup}
       />
 
       <BrowserView
@@ -65,6 +77,12 @@ function App() {
         onUpdateScript={updateScript}
         onDeleteScript={deleteScript}
         onToggleScript={toggleScript}
+        extensions={extensions}
+        extensionsLoading={extensionsLoading}
+        extensionsError={extensionsError}
+        onLoadExtension={loadExtension}
+        onInstallFromWebStore={installFromWebStore}
+        onUnloadExtension={unloadExtension}
       />
     </div>
   );

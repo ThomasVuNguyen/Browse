@@ -61,7 +61,6 @@ export function BrowserView({ tabs, activeTabId, onWebviewRef, customScripts }: 
 
             // 1. Identify scripts to remove (disabled or deleted)
             const activeKeys = cssKeysRef.current[tabId] || {};
-            const currentScriptIds = new Set(customScripts.map(s => s.id));
 
             // Remove keys for deleted scripts
             for (const [scriptId, key] of Object.entries(activeKeys)) {
@@ -86,17 +85,16 @@ export function BrowserView({ tabs, activeTabId, onWebviewRef, customScripts }: 
     return (
         <div className="flex-1 relative bg-white">
             {tabs.map((tab) => (
-                // @ts-expect-error: React types don't fully support webview element props
                 <webview
                     key={tab.id}
-                    ref={(el: WebviewElement | null) => handleWebviewRefLocal(tab.id, el)}
+                    ref={(el: unknown) => handleWebviewRefLocal(tab.id, el as WebviewElement | null)}
                     src={tab.url}
                     className="absolute top-0 w-full h-full bg-white"
                     style={{
                         left: activeTabId === tab.id ? '0' : '-9999px',
                         visibility: activeTabId === tab.id ? 'visible' : 'hidden',
                     }}
-                    allowpopups="true"
+                    allowpopups={true}
                     partition="persist:main"
                 />
             ))}
